@@ -1,0 +1,43 @@
+name: Update Changelog
+on:
+  release:
+    types: [published]
+jobs:
+  update-changelog:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout Charts Repo
+        if: ${{contains(github.event.release.body, 'Agent Chart')}}
+        uses: actions/checkout@v2
+        with:
+          repository: env0/self-hosted
+          ref: gh-pages
+          path: './self-hosted'
+          token: ${{ secrets.BOT_PAGES_TOKEN }}
+      - name: Update CHANGELOG
+        if: ${{contains(github.event.release.body, 'Agent Chart')}}
+        uses: bhowell2/github-substring-action@v1
+        id: update-changelog
+        with:
+          value: ${{github.event.release.body}}
+          index_of_str: "🕵🏻‍️ Agent Chart"
+      - name: Append to CHANGELOG
+        if: ${{contains(github.event.release.body, 'Agent Chart')}}
+        uses: DamianReeves/write-file-action@v1
+        with:
+          path: ${{env.home}}/self-hosted/CHANGELOG.md
+          contents: |
+            echo "${{ format('{0} \n {1}', github.event.release.tag_name, steps.update-changelog.outputs.substring)}}"
+          write-mode: append
+      - name: Push CHANGELOG to repo
+        if: ${{contains(github.event.release.body, 'Agent Chart')}} # todo - move the condition to job
+        uses: dmnemec/copy_file_to_another_repo_action@bbebd3da22e4a37d04dca5f782edd5201cb97083
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.BOT_PAGES_TOKEN }}
+        with:
+          source_file: 'self-hosted/CHANGELOG.md'
+          destination_repo: 'env0/self-hosted'
+          user-email: 'self-hosted@env0.com'
+          user_name: 'self-hosted'
+          commit_message: '${{ env.GITHUB_REF }}'
+          destination_branch: gh-pages
