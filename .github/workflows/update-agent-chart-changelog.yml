@@ -23,13 +23,18 @@ jobs:
       - name: Set the value
         id: step_one
         run: |
-          echo "FOO="$(echo -n '${{ github.event.release.tag_name }}') $(echo -n '${{ steps.update-changelog.outputs.substring }}')" >> $GITHUB_ENV
+          MY_STRING=$(cat << EOF
+          \## ${{github.event.release.tag_name}}
+          ${{ steps.update-changelog.outputs.substring }}
+          EOF
+          )
+          echo "::set-output name=content::$MY_STRING"
       - name: Append to CHANGELOG
         uses: DamianReeves/write-file-action@v1.0
         with:
           path: ./self-hosted/CHANGELOG.md
           contents: |
-            ${{env.FOO}}
+            ${{steps.step_one.outputs.content}}
           write-mode: append
       - name: Push CHANGELOG to repo
         uses: dmnemec/copy_file_to_another_repo_action@bbebd3da22e4a37d04dca5f782edd5201cb97083
