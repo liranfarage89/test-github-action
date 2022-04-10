@@ -24,7 +24,7 @@ jobs:
         id: step_one
         run: |
           MY_STRING=$(cat << EOF
-          \## ${{github.event.release.tag_name}}
+          ## ${{ github.event.release.tag_name }}
           ${{ steps.update-changelog.outputs.substring }}
           EOF
           )
