@@ -28,13 +28,15 @@ jobs:
           ${{ steps.update-changelog.outputs.substring }}
           EOF
           )
-          echo "::set-output name=content::$MY_STRING"
+          echo "MY_STRING<<EOF" >> $GITHUB_ENV
+          echo "$MY_STRING" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
       - name: Append to CHANGELOG
         uses: DamianReeves/write-file-action@v1.0
         with:
           path: ./self-hosted/CHANGELOG.md
           contents: |
-            ${{steps.step_one.outputs.content}}
+            ${{env.MY_STRING}}
           write-mode: append
       - name: Push CHANGELOG to repo
         uses: dmnemec/copy_file_to_another_repo_action@bbebd3da22e4a37d04dca5f782edd5201cb97083
