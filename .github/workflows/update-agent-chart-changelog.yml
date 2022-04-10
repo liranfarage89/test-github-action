@@ -25,7 +25,7 @@ jobs:
         if: ${{contains(github.event.release.body, 'Agent Chart')}}
         uses: DamianReeves/write-file-action@v1.0
         with:
-          path: ${{env.home}}/self-hosted/CHANGELOG.md
+          path: ./self-hosted/CHANGELOG.md
           contents: |
             echo "${{ format('{0} \n {1}', github.event.release.tag_name, steps.update-changelog.outputs.substring)}}"
           write-mode: append
