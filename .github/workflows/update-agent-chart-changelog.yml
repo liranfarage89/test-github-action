@@ -25,7 +25,7 @@ jobs:
         with:
           path: ./self-hosted/CHANGELOG.md
           contents: |
-            ${{ format('<br />## {0} <br /> {1}',  github.event.release.tag_name, steps.update-changelog.outputs.substring)}}
+            ${{ format('<br /><br />## {0} <br /> {1}',  github.event.release.tag_name, steps.update-changelog.outputs.substring)}}
           write-mode: append
       - name: Push CHANGELOG to repo
         uses: dmnemec/copy_file_to_another_repo_action@bbebd3da22e4a37d04dca5f782edd5201cb97083
