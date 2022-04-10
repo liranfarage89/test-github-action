@@ -10,7 +10,7 @@ jobs:
         if: ${{contains(github.event.release.body, 'Agent Chart')}}
         uses: actions/checkout@v2
         with:
-          repository: env0/self-hosted
+          repository: liranfarage89/self-hosted
           ref: gh-pages
           path: './self-hosted'
           token: ${{ secrets.BOT_PAGES_TOKEN }}
@@ -36,7 +36,7 @@ jobs:
           API_TOKEN_GITHUB: ${{ secrets.BOT_PAGES_TOKEN }}
         with:
           source_file: 'self-hosted/CHANGELOG.md'
-          destination_repo: 'env0/self-hosted'
+          destination_repo: 'liranfarage89/self-hosted'
           user-email: 'self-hosted@env0.com'
           user_name: 'self-hosted'
           commit_message: '${{ env.GITHUB_REF }}'
