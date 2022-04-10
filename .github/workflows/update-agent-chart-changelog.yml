@@ -23,7 +23,7 @@ jobs:
       - name: Set the value
         id: step_one
         run: |
-          echo "FOO="\n##${{ github.event.release.tag_name }}\n${{ steps.update-changelog.outputs.substring }}\n"" >> $GITHUB_ENV
+          echo "FOO="\\n##${{ github.event.release.tag_name }}\\n${{ steps.update-changelog.outputs.substring }}\\n"" >> $GITHUB_ENV
       - name: Append to CHANGELOG
         uses: DamianReeves/write-file-action@v1.0
         with:
