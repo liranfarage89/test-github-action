@@ -24,10 +24,9 @@ jobs:
         id: step_one
         run: |
           MY_STRING=$(cat << EOF
-          $(echo -n ' ')          
+          $(echo -n '.')          
           ## ${{ github.event.release.tag_name }}
           ${{ steps.update-changelog.outputs.substring }}
-          $(echo -n ' ')
           EOF
           )
           echo "MY_STRING<<EOF" >> $GITHUB_ENV
