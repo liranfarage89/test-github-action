@@ -27,7 +27,7 @@ jobs:
         with:
           path: ./self-hosted/CHANGELOG.md
           contents: |
-            ${{ format('{0} {1}', ## github.event.release.tag_name, steps.update-changelog.outputs.substring)}}
+            ${{ format('## {0} <br /> {1}',  github.event.release.tag_name, steps.update-changelog.outputs.substring)}}
           write-mode: append
       - name: Push CHANGELOG to repo
         if: ${{contains(github.event.release.body, 'Agent Chart')}} # todo - move the condition to job
