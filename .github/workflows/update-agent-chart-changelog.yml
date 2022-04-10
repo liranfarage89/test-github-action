@@ -4,10 +4,10 @@ on:
     types: [published]
 jobs:
   update-changelog:
+    if: ${{contains(github.event.release.body, 'Agent Chart')}}
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout Charts Repo
-        if: ${{contains(github.event.release.body, 'Agent Chart')}}
         uses: actions/checkout@v2
         with:
           repository: liranfarage89/self-hosted
@@ -15,14 +15,12 @@ jobs:
           path: './self-hosted'
           token: ${{ secrets.BOT_PAGES_TOKEN }}
       - name: Update CHANGELOG
-        if: ${{contains(github.event.release.body, 'Agent Chart')}}
         uses: bhowell2/github-substring-action@v1
         id: update-changelog
         with:
           value: ${{github.event.release.body}}
           index_of_str: Agent Chart
       - name: Append to CHANGELOG
-        if: ${{contains(github.event.release.body, 'Agent Chart')}}
         uses: DamianReeves/write-file-action@v1.0
         with:
           path: ./self-hosted/CHANGELOG.md
@@ -30,7 +28,6 @@ jobs:
             ${{ format('## {0} <br /> {1}',  github.event.release.tag_name, steps.update-changelog.outputs.substring)}}
           write-mode: append
       - name: Push CHANGELOG to repo
-        if: ${{contains(github.event.release.body, 'Agent Chart')}} # todo - move the condition to job
         uses: dmnemec/copy_file_to_another_repo_action@bbebd3da22e4a37d04dca5f782edd5201cb97083
         env:
           API_TOKEN_GITHUB: ${{ secrets.BOT_PAGES_TOKEN }}
