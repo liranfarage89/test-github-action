@@ -20,7 +20,7 @@ jobs:
         id: update-changelog
         with:
           value: ${{github.event.release.body}}
-          index_of_str: "🕵🏻‍️ Agent Chart"
+          index_of_str: Agent Chart
       - name: Append to CHANGELOG
         if: ${{contains(github.event.release.body, 'Agent Chart')}}
         uses: DamianReeves/write-file-action@v1.0
