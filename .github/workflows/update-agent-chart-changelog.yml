@@ -49,3 +49,13 @@ jobs:
           user_name: 'self-hosted'
           commit_message: '${{ env.GITHUB_REF }}'
           destination_branch: gh-pages
+      - name: Tag & Release
+        uses: liranfarage89/tag-and-release
+        with:
+          owner: liranfarage89
+          repo: self-hosted
+          tag_name: ${{github.event.release.tag_name}}
+          body: ${{ steps.update-changelog.outputs.substring }}
+          commit: gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.BOT_PAGES_TOKEN }}
