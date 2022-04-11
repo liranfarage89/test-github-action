@@ -69,6 +69,8 @@ jobs:
             ${{ steps.update-changelog.outputs.substring }}
           draft: false
           prerelease: false
+          owner: 'liranfarage89'
+          repo: 'self-hosted'
         env:
           GITHUB_TOKEN: ${{ secrets.BOT_PAGES_TOKEN }}
 #       - name: Tag & Release
