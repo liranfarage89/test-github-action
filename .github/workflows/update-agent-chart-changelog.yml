@@ -58,6 +58,17 @@ jobs:
             git pull
             git tag ${{ github.event.release.tag_name }}
             git push origin --tags
+            
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ github.event.release.tag_name }}
+          release_name: ${{ github.event.release.tag_name }}
+          body: |
+            ${{ steps.update-changelog.outputs.substring }}
+          draft: false
+          prerelease: false
 #       - name: Tag & Release
 #         uses: liranfarage89/tag-and-release@master
 #         with:
