@@ -56,7 +56,7 @@ jobs:
             git config --global user.email 'your-username@users.noreply.github.com'
             git reset --hard HEAD
             git pull
-            git tag ${{ github.event.release.tag_name }}
+            git tag ${{ github.event.release.tag_name }} -m '${{ github.event.release.tag_name }}'
             git push origin --tags
             
       - name: Create Release
