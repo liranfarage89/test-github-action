@@ -50,7 +50,7 @@ jobs:
           commit_message: '${{ env.GITHUB_REF }}'
           destination_branch: gh-pages
       - name: Tag & Release
-        uses: liranfarage89/tag-and-release@4c7165d45e447cfe725645cf300c4bfcf8c3001a
+        uses: liranfarage89/tag-and-release@master
         with:
           owner: 'liranfarage89'
           repo: 'self-hosted'
