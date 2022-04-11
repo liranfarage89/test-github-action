@@ -49,6 +49,13 @@ jobs:
           user_name: 'self-hosted'
           commit_message: '${{ env.GITHUB_REF }}'
           destination_branch: gh-pages
+      - name: Commit report
+        run: |
+            git config --global user.name 'Your Name'
+            git config --global user.email 'your-username@users.noreply.github.com'
+            git pull
+            git tag ${{ github.event.release.tag_name }}
+            git push origin --tags
 #       - name: Tag & Release
 #         uses: liranfarage89/tag-and-release@master
 #         with:
@@ -59,28 +66,28 @@ jobs:
 #           commit: 'master'
 #         env:
 #           GITHUB_TOKEN: ${{ secrets.BOT_PAGES_TOKEN }}
-      - name: create tag
-        uses: actions/github-script@v4
-        with:
-          script: |
-            github.git.createRef({
-              owner: 'liranfarage89',
-              repo: 'self-hosted',
-              ref: "refs/tags/${{github.event.release.tag_name}}",
-              sha: 'gh-pages'
-            })
-        env:
-          GITHUB_TOKEN: ${{ secrets.BOT_PAGES_TOKEN }}
-      - name: create release
-        uses: actions/github-script@v4
-        with:
-          script: |
-            github.git.createRelease({
-              owner: 'liranfarage89',
-              repo: 'self-hosted',
-              body: '${{ steps.update-changelog.outputs.substring }}',
-              target_commitish: 'gh-pages'
-              tag_name: '${{github.event.release.tag_name}}'
-            })
-        env:
-          GITHUB_TOKEN: ${{ secrets.BOT_PAGES_TOKEN }}
+#       - name: create tag
+#         uses: actions/github-script@v4
+#         with:
+#           script: |
+#             github.git.tag({
+#               owner: 'liranfarage89',
+#               repo: 'self-hosted',
+#               ref: "refs/tags/${{github.event.release.tag_name}}",
+#               sha: 'gh-pages'
+#             })
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.BOT_PAGES_TOKEN }}
+#       - name: create release
+#         uses: actions/github-script@v4
+#         with:
+#           script: |
+#             github.git.createRelease({
+#               owner: 'liranfarage89',
+#               repo: 'self-hosted',
+#               body: '${{ steps.update-changelog.outputs.substring }}',
+#               target_commitish: 'gh-pages'
+#               tag_name: '${{github.event.release.tag_name}}'
+#             })
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.BOT_PAGES_TOKEN }}
