@@ -64,13 +64,13 @@ jobs:
         uses: actions/create-release@v1
         with:
           tag_name: ${{ github.event.release.tag_name }}
-          release_name: ${{ github.event.release.tag_name }}
           body: |
             ${{ steps.update-changelog.outputs.substring }}
           draft: false
           prerelease: false
           owner: 'liranfarage89'
           repo: 'self-hosted'
+          commitish: 'gh-pages'
         env:
           GITHUB_TOKEN: ${{ secrets.BOT_PAGES_TOKEN }}
 #       - name: Tag & Release
