@@ -69,6 +69,8 @@ jobs:
             ${{ steps.update-changelog.outputs.substring }}
           draft: false
           prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.BOT_PAGES_TOKEN }}
 #       - name: Tag & Release
 #         uses: liranfarage89/tag-and-release@master
 #         with:
