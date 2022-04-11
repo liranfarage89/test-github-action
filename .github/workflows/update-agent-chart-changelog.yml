@@ -52,10 +52,10 @@ jobs:
       - name: Tag & Release
         uses: liranfarage89/tag-and-release@4c7165d45e447cfe725645cf300c4bfcf8c3001a
         with:
-          owner: liranfarage89
-          repo: self-hosted
+          owner: 'liranfarage89'
+          repo: 'self-hosted'
           tag_name: ${{github.event.release.tag_name}}
           body: ${{ steps.update-changelog.outputs.substring }}
-          commit: gh-pages
+          commit: 'gh-pages'
         env:
           GITHUB_TOKEN: ${{ secrets.BOT_PAGES_TOKEN }}
