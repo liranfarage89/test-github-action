@@ -49,16 +49,16 @@ jobs:
           user_name: 'self-hosted'
           commit_message: '${{ env.GITHUB_REF }}'
           destination_branch: gh-pages
-      - name: Tag & Release
-        uses: liranfarage89/tag-and-release@master
-        with:
-          owner: 'liranfarage89'
-          repo: 'self-hosted'
-          tag_name: 'v1.2.3'
-          body: ${{ steps.update-changelog.outputs.substring }}
-          commit: 'master'
-        env:
-          GITHUB_TOKEN: ${{ secrets.BOT_PAGES_TOKEN }}
+#       - name: Tag & Release
+#         uses: liranfarage89/tag-and-release@master
+#         with:
+#           owner: 'liranfarage89'
+#           repo: 'self-hosted'
+#           tag_name: 'v1.2.3'
+#           body: ${{ steps.update-changelog.outputs.substring }}
+#           commit: 'master'
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.BOT_PAGES_TOKEN }}
       - name: create tag
         uses: actions/github-script@v4
         with:
