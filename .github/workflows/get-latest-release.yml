@@ -1,5 +1,8 @@
 name: Get Latest Release By Tag
-on: push
+on:
+  push: 
+    tags:
+      - '*'
 jobs:
   get-latest-release:
     runs-on: ubuntu-20.04
