@@ -16,54 +16,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      
-      - name: Install Helm
-        if: steps.changes.outputs.any_changed == 'true'
-        uses: azure/setup-helm@v1
-        with:
-          version: v3.6.2
-      
-      - name: Set version
-        if: steps.changes.outputs.any_changed == 'true'
-        run: echo "VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
-      
-      - name: Helm Package
-        if: steps.changes.outputs.any_changed == 'true'
-        run: |
-          helm package agent/helm --app-version $VERSION --version $VERSION --destination agent/helm/dist/charts
-      
-      - name: Helm Index Repo
-        if: steps.changes.outputs.any_changed == 'true'
-        run: |
-          curl https://env0.github.io/self-hosted/index.yaml -o agent/helm/dist/previous-index.yaml
-          helm repo index agent/helm/dist --url https://env0.github.io/self-hosted --merge agent/helm/dist/previous-index.yaml
-      
-      - name: Push chart to repo
-        if: steps.changes.outputs.any_changed == 'true'
-        uses: dmnemec/copy_file_to_another_repo_action@bbebd3da22e4a37d04dca5f782edd5201cb97083
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.BOT_PAGES_TOKEN }}
-        with:
-          source_file: 'agent/helm/dist/charts/env0-agent-${{ env.VERSION }}.tgz'
-          destination_repo: 'liranfarage89/self-hosted'
-          destination_folder: 'charts'
-          user-email: 'self-hosted@env0.com'
-          user_name: 'self-hosted'
-          commit_message: '${{ env.GITHUB_REF }}'
-          destination_branch: gh-pages
-      
-      - name: Push index.yaml
-        if: steps.changes.outputs.any_changed == 'true'
-        uses: dmnemec/copy_file_to_another_repo_action@bbebd3da22e4a37d04dca5f782edd5201cb97083
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.BOT_PAGES_TOKEN }}
-        with:
-          source_file: 'agent/helm/dist/index.yaml'
-          destination_repo: 'liranfarage89/self-hosted'
-          user-email: 'self-hosted@env0.com'
-          user_name: 'self-hosted'
-          commit_message: '${{ env.GITHUB_REF }}'
-          destination_branch: gh-pages
+      # removed helm steps.
     outputs:
       changed: ${{ steps.changes.outputs.any_changed }}
 
