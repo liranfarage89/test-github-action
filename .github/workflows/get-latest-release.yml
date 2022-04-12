@@ -1,0 +1,17 @@
+name: Get Latest Release By Tag
+on: push
+jobs:
+  get-latest-release:
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+      - uses: octokit/request-action@v2.x
+        id: get_latest_release
+        with:
+          route: GET /repos/{owner}/{repo}/releases/tags/{tag}
+          owner: liranfarage89
+          repo: self-hosted
+          tag: ${{ steps.get_version.outputs.VERSION }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.BOT_PAGES_TOKEN }}
+        run: "echo latest release: ${{ steps.get_latest_release.outputs.data }}"
