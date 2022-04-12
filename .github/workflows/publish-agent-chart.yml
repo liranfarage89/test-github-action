@@ -9,7 +9,7 @@ jobs:
     steps:
       - name: Mock Files Changed
         id: changes
-        run: echo "::set-output name=any_change::true"
+        run: echo "::set-output name=any_changed::true"
       
       - name: Checkout env0
         if: steps.changes.outputs.any_changed == 'true'
