@@ -22,4 +22,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Echo Latest Release
         run: |
-          echo latest release: ${{ steps.get_latest_release.outputs.data }}
+          echo latest release: ${{ steps.get_latest_release.outputs.data.body }}
