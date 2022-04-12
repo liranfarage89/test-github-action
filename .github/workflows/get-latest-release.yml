@@ -20,4 +20,5 @@ jobs:
           tag: ${{ steps.get_version.outputs.VERSION }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: "echo latest release: ${{ steps.get_latest_release.outputs.data }}"
+      - name: Echo Latest Release
+        run: "echo latest release: ${{ steps.get_latest_release.outputs.data }}"
