@@ -1,0 +1,159 @@
+name: Publish Self-Hosted Agent Helm Chart
+on:
+  push:
+    tags:
+      - '*'
+jobs:
+  push:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Mock Files Changed
+        id: changes
+        run: echo "::set-output name=any_change::true"
+      
+      - name: Checkout env0
+        if: steps.changes.outputs.any_changed == 'true'
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: Install Helm
+        if: steps.changes.outputs.any_changed == 'true'
+        uses: azure/setup-helm@v1
+        with:
+          version: v3.6.2
+      
+      - name: Set version
+        if: steps.changes.outputs.any_changed == 'true'
+        run: echo "VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      
+      - name: Helm Package
+        if: steps.changes.outputs.any_changed == 'true'
+        run: |
+          helm package agent/helm --app-version $VERSION --version $VERSION --destination agent/helm/dist/charts
+      
+      - name: Helm Index Repo
+        if: steps.changes.outputs.any_changed == 'true'
+        run: |
+          curl https://env0.github.io/self-hosted/index.yaml -o agent/helm/dist/previous-index.yaml
+          helm repo index agent/helm/dist --url https://env0.github.io/self-hosted --merge agent/helm/dist/previous-index.yaml
+      
+      - name: Push chart to repo
+        if: steps.changes.outputs.any_changed == 'true'
+        uses: dmnemec/copy_file_to_another_repo_action@bbebd3da22e4a37d04dca5f782edd5201cb97083
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.BOT_PAGES_TOKEN }}
+        with:
+          source_file: 'agent/helm/dist/charts/env0-agent-${{ env.VERSION }}.tgz'
+          destination_repo: 'liranfarage89/self-hosted'
+          destination_folder: 'charts'
+          user-email: 'self-hosted@env0.com'
+          user_name: 'self-hosted'
+          commit_message: '${{ env.GITHUB_REF }}'
+          destination_branch: gh-pages
+      
+      - name: Push index.yaml
+        if: steps.changes.outputs.any_changed == 'true'
+        uses: dmnemec/copy_file_to_another_repo_action@bbebd3da22e4a37d04dca5f782edd5201cb97083
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.BOT_PAGES_TOKEN }}
+        with:
+          source_file: 'agent/helm/dist/index.yaml'
+          destination_repo: 'liranfarage89/self-hosted'
+          user-email: 'self-hosted@env0.com'
+          user_name: 'self-hosted'
+          commit_message: '${{ env.GITHUB_REF }}'
+          destination_branch: gh-pages
+    outputs:
+      changed: ${{ steps.changes.outputs.any_changed }}
+
+  update-changelog:
+    needs: push
+    if: ${{ needs.push.outputs.changed == 'true' }}
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Get The Tag Name
+        id: get_tag_name
+        run: echo ::set-output name=TAG_NAME::${GITHUB_REF/refs\/tags\//}
+      - name: Get Latest Release
+        uses: octokit/request-action@v2.x
+        id: get_release
+        with:
+          route: GET /repos/{owner}/{repo}/releases/tags/{tag}
+          owner: liranfarage89
+          repo: test-github-action
+          tag: ${{ steps.get_tag_name.outputs.TAG_NAME }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Checkout Charts Repo
+        uses: actions/checkout@v2
+        with:
+          repository: liranfarage89/self-hosted
+          ref: gh-pages
+          path: './self-hosted'
+          token: ${{ secrets.BOT_PAGES_TOKEN }}
+      - name: Update CHANGELOG
+        if: ${{contains(fromJson(steps.get_release.outputs.data).body, '## 🕵‍️ Agent Chart')}}
+        uses: bhowell2/github-substring-action@v1
+        id: update-changelog
+        with:
+          value: ${{ fromJson(steps.get_release.outputs.data).body }}
+          index_of_str: '## 🕵‍️ Agent Chart'
+      - name: Format body # https://trstringer.com/github-actions-multiline-strings/
+        if: ${{contains(fromJson(steps.get_release.outputs.data).body, '## 🕵‍️ Agent Chart')}}
+        run: |
+          BODY=$(cat << EOF
+          $(echo -n '<br />')
+          ## ${{ github.event.release.tag_name }}
+          ${{ steps.update-changelog.outputs.substring }}
+          EOF
+          )
+          echo "BODY<<EOF" >> $GITHUB_ENV
+          echo "$BODY" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+      - name: Append to CHANGELOG
+        if: ${{contains(fromJson(steps.get_release.outputs.data).body, '## 🕵‍️ Agent Chart')}}
+        uses: DamianReeves/write-file-action@v1.0
+        with:
+          path: ./self-hosted/CHANGELOG.md
+          contents: |
+            ${{env.BODY}}
+          write-mode: append
+      - name: Push CHANGELOG to repo
+        if: ${{contains(fromJson(steps.get_release.outputs.data).body, '## 🕵‍️ Agent Chart')}}
+        uses: dmnemec/copy_file_to_another_repo_action@bbebd3da22e4a37d04dca5f782edd5201cb97083
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.BOT_PAGES_TOKEN }}
+        with:
+          source_file: 'self-hosted/CHANGELOG.md'
+          destination_repo: 'liranfarage89/self-hosted'
+          user-email: 'self-hosted@env0.com'
+          user_name: 'self-hosted'
+          commit_message: '${{ env.GITHUB_REF }}'
+          destination_branch: gh-pages
+      - name: Create Tag
+        if: ${{contains(fromJson(steps.get_release.outputs.data).body, '## 🕵‍️ Agent Chart')}}
+        # we reset previous changes, pulling, tagging the latest commit and creating a release from gh-pages in the next step
+        run: |
+          cd ./self-hosted
+          git config --global user.name 'env0 User'
+          git config --global user.email 'no-reply@env0.com'
+          git reset --hard HEAD
+          git pull
+          git tag ${{ github.event.release.tag_name }} -m '${{ github.event.release.tag_name }}'
+          git push origin --tags
+      - name: Create Release
+        if: ${{contains(fromJson(steps.get_release.outputs.data).body, '## 🕵‍️ Agent Chart')}}
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ github.event.release.tag_name }}
+          body: |
+            ${{ steps.update-changelog.outputs.substring}}
+          draft: false
+          prerelease: false
+          owner: 'liranfarage89'
+          repo: 'self-hosted'
+          commitish: 'gh-pages'
+        env:
+          GITHUB_TOKEN: ${{ secrets.BOT_PAGES_TOKEN }}
