@@ -27,7 +27,7 @@ jobs:
       - name: Get The Tag Name From Tag Event
         id: get_tag_name
         run: echo ::set-output name=TAG_NAME::${GITHUB_REF/refs\/tags\//}
-      - name: Get Release From Tag Name
+      - name: Get Release From API by Tag Name
         uses: octokit/request-action@v2.x
         id: get_release
         with:
@@ -37,6 +37,12 @@ jobs:
           tag: ${{ steps.get_tag_name.outputs.TAG_NAME }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: 'Validate ## 🕵‍️ Agent Chart'
+        if: ${{ contains(fromJson(steps.get_release.outputs.data).body, '## 🕵‍️ Agent Chart') == 'false}}
+        uses: actions/github-script@v3
+        with:
+          script: |
+            core.setFailed('Release description doesnt contain ## 🕵‍️ Agent Chart as it should.')
       - name: Checkout Charts Repo
         uses: actions/checkout@v2
         with:
@@ -45,14 +51,12 @@ jobs:
           path: './self-hosted'
           token: ${{ secrets.BOT_PAGES_TOKEN }}
       - name: Update CHANGELOG
-        if: ${{contains(fromJson(steps.get_release.outputs.data).body, '## 🕵‍️ Agent Chart')}} #todo create another job that checks for changes only one time
         uses: bhowell2/github-substring-action@v1
         id: update-changelog
         with:
           value: ${{ fromJson(steps.get_release.outputs.data).body }}
           index_of_str: '## 🕵‍️ Agent Chart'
       - name: Reformat Release Body # https://trstringer.com/github-actions-multiline-strings/
-        if: ${{contains(fromJson(steps.get_release.outputs.data).body, '## 🕵‍️ Agent Chart')}}
         run: |
           BODY=$(cat << EOF
           $(echo -n '<br />')
@@ -64,7 +68,6 @@ jobs:
           echo "$BODY" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
       - name: Append to CHANGELOG
-        if: ${{contains(fromJson(steps.get_release.outputs.data).body, '## 🕵‍️ Agent Chart')}}
         uses: DamianReeves/write-file-action@v1.0
         with:
           path: ./self-hosted/CHANGELOG.md
@@ -72,7 +75,6 @@ jobs:
             ${{env.BODY}}
           write-mode: append
       - name: Push CHANGELOG to repo
-        if: ${{contains(fromJson(steps.get_release.outputs.data).body, '## 🕵‍️ Agent Chart')}}
         uses: dmnemec/copy_file_to_another_repo_action@bbebd3da22e4a37d04dca5f782edd5201cb97083
         env:
           API_TOKEN_GITHUB: ${{ secrets.BOT_PAGES_TOKEN }}
@@ -84,7 +86,6 @@ jobs:
           commit_message: '${{ env.GITHUB_REF }}'
           destination_branch: gh-pages
       - name: Create Tag
-        if: ${{contains(fromJson(steps.get_release.outputs.data).body, '## 🕵‍️ Agent Chart')}}
         # we reset previous changes, pulling, tagging the latest commit and creating a release from gh-pages in the next step
         run: |
           cd ./self-hosted
@@ -95,7 +96,6 @@ jobs:
           git tag ${{ steps.get_tag_name.outputs.TAG_NAME }} -m '${{ steps.get_tag_name.outputs.TAG_NAME }}'
           git push origin --tags
       - name: Create Release
-        if: ${{contains(fromJson(steps.get_release.outputs.data).body, '## 🕵‍️ Agent Chart')}}
         id: create_release
         uses: actions/create-release@v1
         with:
