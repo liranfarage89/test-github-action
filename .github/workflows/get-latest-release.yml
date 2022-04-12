@@ -16,8 +16,8 @@ jobs:
         with:
           route: GET /repos/{owner}/{repo}/releases/tags/{tag}
           owner: liranfarage89
-          repo: self-hosted
+          repo: test-github-action
           tag: ${{ steps.get_version.outputs.VERSION }}
         env:
-          GITHUB_TOKEN: ${{ secrets.BOT_PAGES_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: "echo latest release: ${{ steps.get_latest_release.outputs.data }}"
