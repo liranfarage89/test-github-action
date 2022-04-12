@@ -2,7 +2,7 @@ name: Publish Self-Hosted Agent Helm Chart
 on:
   push:
     tags:
-      - '*'
+      - "v[0-9]+.[0-9]+.[0-9]+"
 jobs:
   push:
     runs-on: ubuntu-20.04
@@ -19,16 +19,15 @@ jobs:
       # removed helm steps.
     outputs:
       changed: ${{ steps.changes.outputs.any_changed }}
-
   update-changelog:
+    runs-on: ubuntu-20.04
     needs: push
     if: ${{ needs.push.outputs.changed == 'true' }}
-    runs-on: ubuntu-20.04
     steps:
-      - name: Get The Tag Name
+      - name: Get The Tag Name From Tag Event
         id: get_tag_name
         run: echo ::set-output name=TAG_NAME::${GITHUB_REF/refs\/tags\//}
-      - name: Get Latest Release
+      - name: Get Release From Tag Name
         uses: octokit/request-action@v2.x
         id: get_release
         with:
@@ -46,13 +45,13 @@ jobs:
           path: './self-hosted'
           token: ${{ secrets.BOT_PAGES_TOKEN }}
       - name: Update CHANGELOG
-        if: ${{contains(fromJson(steps.get_release.outputs.data).body, '## 🕵‍️ Agent Chart')}}
+        if: ${{contains(fromJson(steps.get_release.outputs.data).body, '## 🕵‍️ Agent Chart')}} #todo create another job that checks for changes only one time
         uses: bhowell2/github-substring-action@v1
         id: update-changelog
         with:
           value: ${{ fromJson(steps.get_release.outputs.data).body }}
           index_of_str: '## 🕵‍️ Agent Chart'
-      - name: Format body # https://trstringer.com/github-actions-multiline-strings/
+      - name: Reformat Release Body # https://trstringer.com/github-actions-multiline-strings/
         if: ${{contains(fromJson(steps.get_release.outputs.data).body, '## 🕵‍️ Agent Chart')}}
         run: |
           BODY=$(cat << EOF
