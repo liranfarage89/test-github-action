@@ -57,7 +57,7 @@ jobs:
         run: |
           BODY=$(cat << EOF
           $(echo -n '<br />')
-          ## ${{ github.event.release.tag_name }}
+          ## ${{ steps.get_tag_name.outputs.TAG_NAME }}
           ${{ steps.update-changelog.outputs.substring }}
           EOF
           )
@@ -100,7 +100,7 @@ jobs:
         id: create_release
         uses: actions/create-release@v1
         with:
-          tag_name: ${{ github.event.release.tag_name }}
+          tag_name: ${{ steps.get_tag_name.outputs.TAG_NAME }}
           body: |
             ${{ steps.update-changelog.outputs.substring}}
           draft: false
