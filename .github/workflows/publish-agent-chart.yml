@@ -93,7 +93,7 @@ jobs:
           git config --global user.email 'no-reply@env0.com'
           git reset --hard HEAD
           git pull
-          git tag ${{ github.event.release.tag_name }} -m '${{ github.event.release.tag_name }}'
+          git tag ${{ steps.get_tag_name.outputs.TAG_NAME }} -m '${{ steps.get_tag_name.outputs.TAG_NAME }}'
           git push origin --tags
       - name: Create Release
         if: ${{contains(fromJson(steps.get_release.outputs.data).body, '## 🕵‍️ Agent Chart')}}
