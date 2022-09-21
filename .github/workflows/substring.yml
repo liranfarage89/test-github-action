@@ -31,6 +31,7 @@ jobs:
         with:
           value: ${{ fromJson(steps.get_release.outputs.data).body }}
           index_of_str: '## 🕵‍️ Agent Chart'
+          fail_if_not_found: false
           default_return_value: '## 🕵‍️ Agent Chart - Stability Improvement'
       - name: Reformat Release Body # https://trstringer.com/github-actions-multiline-strings/
         run: |
