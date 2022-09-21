@@ -24,7 +24,7 @@ jobs:
           tag: ${{ inputs.tag }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: "echo latest release: ${{ fromJson(steps.get_release.outputs.data).body }}"
+      - run: "echo latest release: '${{ fromJson(steps.get_release.outputs.data).body }}'"
       - name: 'Validate ## 🕵‍️ Agent Chart'
         if: ${{ contains(fromJson(steps.get_release.outputs.data).body, '## 🕵‍️ Agent Chart') == false}}
         uses: actions/github-script@v6
