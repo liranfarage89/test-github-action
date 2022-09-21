@@ -1,0 +1,19 @@
+jobs:
+  update-changelog:
+    steps:
+      - name: Get Release From API by Tag Name
+        uses: octokit/request-action@v2.x
+        id: get_release
+        with:
+          route: GET /repos/{owner}/{repo}/releases/tags/{tag}
+          owner: liranfarage89
+          repo: todo
+          tag: ${{ inputs.tag }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: 'Validate ## 🕵‍️ Agent Chart'
+        if: ${{ contains(fromJson(steps.get_release.outputs.data).body, '## 🕵‍️ Agent Chart') == 'false'}}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            core.setFailed('Release description doesnt contain ## 🕵‍️ Agent Chart as it should.')
