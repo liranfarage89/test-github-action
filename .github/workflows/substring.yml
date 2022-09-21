@@ -43,6 +43,7 @@ jobs:
       - name: Reformat Release Body # https://trstringer.com/github-actions-multiline-strings/
         run: |
           BODY=$(cat << EOF
+          
           ## ${{ inputs.tag }}
           ${{ steps.update-changelog.outputs.substring }}
           EOF
