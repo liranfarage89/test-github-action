@@ -1,5 +1,18 @@
+name: Publish Self-Hosted Agent Helm Chart
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'git tag'
+        type: string
+        required: true
+      docker-tag:
+        description: 'docker tag'
+        type: string
+        required: true
 jobs:
   update-changelog:
+    runs-on: ubuntu-20.04
     steps:
       - name: Get Release From API by Tag Name
         uses: octokit/request-action@v2.x
@@ -7,7 +20,7 @@ jobs:
         with:
           route: GET /repos/{owner}/{repo}/releases/tags/{tag}
           owner: liranfarage89
-          repo: todo
+          repo: test-github-action
           tag: ${{ inputs.tag }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
