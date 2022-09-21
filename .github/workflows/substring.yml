@@ -25,9 +25,39 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: "echo latest release: '${{ fromJson(steps.get_release.outputs.data).body }}'"
-      - name: 'Validate ## 🕵‍️ Agent Chart'
-        if: ${{ contains(fromJson(steps.get_release.outputs.data).body, '## 🕵‍️ Agent Chart') == false}}
-        uses: actions/github-script@v6
+      - name: Update CHANGELOG
+        uses: bhowell2/github-substring-action@v1
+        id: update-changelog
         with:
-          script: |
-            core.setFailed('Release description doesnt contain ## 🕵‍️ Agent Chart as it should.')
+          value: ${{ fromJson(steps.get_release.outputs.data).body }}
+          index_of_str: '## 🕵‍️ Agent Chart'
+          default_return_value: '## 🕵‍️ Agent Chart - Stability Improvement'
+      - name: Reformat Release Body # https://trstringer.com/github-actions-multiline-strings/
+        run: |
+          BODY=$(cat << EOF
+          $(echo -n '<br />')
+          ## ${{ inputs.tag }}
+          ${{ steps.update-changelog.outputs.substring }}
+          EOF
+          )
+          echo "BODY<<EOF" >> $GITHUB_ENV
+          echo "$BODY" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+      - name: Append to CHANGELOG
+        uses: DamianReeves/write-file-action@v1.0
+        with:
+          path: ./self-hosted/CHANGELOG.md
+          contents: |
+            ${{env.BODY}}
+          write-mode: append
+      - name: Push CHANGELOG to repo
+        uses: dmnemec/copy_file_to_another_repo_action@bbebd3da22e4a37d04dca5f782edd5201cb97083
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.BOT_PAGES_TOKEN }}
+        with:
+          source_file: 'self-hosted/CHANGELOG.md'
+          destination_repo: 'liranfarage89/self-hosted'
+          user-email: 'self-hosted@env0.com'
+          user_name: 'self-hosted'
+          commit_message: '${{ env.GITHUB_REF }}'
+          destination_branch: gh-pages
