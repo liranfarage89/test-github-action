@@ -33,6 +33,13 @@ jobs:
           index_of_str: '## 🕵‍️ Agent Chart'
           fail_if_not_found: false
           default_return_value: '- Stability Improvement'
+      - name: Checkout Charts Repo
+        uses: actions/checkout@v3
+        with:
+          repository: liranfarage89/self-hosted
+          ref: gh-pages
+          path: './self-hosted'
+          token: ${{ secrets.BOT_PAGES_TOKEN }}
       - name: Reformat Release Body # https://trstringer.com/github-actions-multiline-strings/
         run: |
           BODY=$(cat << EOF
