@@ -1,4 +1,4 @@
-name: Publish Self-Hosted Agent Helm Chart
+name: Update Changelog
 on:
   workflow_dispatch:
     inputs:
@@ -24,8 +24,9 @@ jobs:
           tag: ${{ inputs.tag }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: "echo latest release: ${{ steps.get_release.outputs.data }}"
       - name: 'Validate ## 🕵‍️ Agent Chart'
-        if: ${{ contains(fromJson(steps.get_release.outputs.data), '## 🕵‍️ Agent Chart') == 'false'}}
+        if: ${{ contains(fromJson(steps.get_release.outputs.data).body, '## 🕵‍️ Agent Chart') == 'false'}}
         uses: actions/github-script@v6
         with:
           script: |
